@@ -5,6 +5,9 @@ require_relative 'support'
 module Contentful
   # Base definition of a Contentful Resource containing Sys properties
   class BaseResource
+    SYS_LINK_FIELDS = %w(space contentType).freeze
+    SYS_DATE_FIELDS = %w(createdAt updatedAt deletedAt).freeze
+
     attr_reader :raw, :default_locale, :sys
 
     def initialize(item, configuration = {}, _localized = false, _includes = [], depth = 0)
@@ -66,9 +69,9 @@ module Contentful
     def hydrate_sys
       result = {}
       raw.fetch('sys', {}).each do |k, v|
-        if %w(space contentType).include?(k)
+        if SYS_LINK_FIELDS.include?(k)
           v = build_link(v)
-        elsif %w(createdAt updatedAt deletedAt).include?(k)
+        elsif SYS_DATE_FIELDS.include?(k)
           v = DateTime.parse(v)
         end
         result[Support.snakify(k).to_sym] = v
