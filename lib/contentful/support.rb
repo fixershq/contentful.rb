@@ -7,13 +7,13 @@ module Contentful
       # @param [String] object camelCaseName
       #
       # @return [String] snake_case_name
-      def snakify(object)
-        String(object)
-          .gsub(/::/, '/')
-          .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-          .gsub(/([a-z\d])([A-Z])/, '\1_\2')
-          .tr('-', '_')
-          .downcase
+      def snakify(camel_cased_word)
+        word = camel_cased_word.to_s.gsub("::".freeze, "/".freeze)
+        word.gsub!(/([A-Z]+)([A-Z][a-z])/, '\1_\2'.freeze)
+        word.gsub!(/([a-z\d])([A-Z])/, '\1_\2'.freeze)
+        word.tr!("-".freeze, "_".freeze)
+        word.downcase!
+        word
       end
 
       # Checks if value is a link
