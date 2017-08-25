@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contentful
   # A Locale definition as included in Space
   # Read more about Localization at https://www.contentful.com/developers/documentation/content-delivery-api/#i18n

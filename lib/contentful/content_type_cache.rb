@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contentful
   # Cache for Content Types
   class ContentTypeCache

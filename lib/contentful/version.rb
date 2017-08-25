@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Contentful Namespace
 module Contentful
   # Gem Version

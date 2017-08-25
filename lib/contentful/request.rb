@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contentful
   # This object represents a request that is to be made. It gets initialized by the client
   # with domain specific logic. The client later uses the Request's #url and #query methods

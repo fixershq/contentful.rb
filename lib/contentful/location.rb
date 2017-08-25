@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contentful
   # Location Field Type
   # You can directly query for them: https://www.contentful.com/developers/documentation/content-delivery-api/#search-filter-geo

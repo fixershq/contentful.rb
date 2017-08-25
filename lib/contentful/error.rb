@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contentful
   # All errors raised by the contentful gem are either instances of Contentful::Error
   # or inherit from Contentful::Error

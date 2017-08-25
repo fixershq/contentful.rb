@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'base_resource'
 require_relative 'field'
 require_relative 'support'

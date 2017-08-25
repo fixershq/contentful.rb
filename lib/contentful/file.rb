@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contentful
   # An Assets's file info
   class File

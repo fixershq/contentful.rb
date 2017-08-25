@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contentful
   # Useful methods for array-like resources that can be included if an
   # :items property exists
