@@ -5,6 +5,8 @@ require_relative 'support'
 module Contentful
   # Base definition of a Contentful Resource containing Sys properties
   class BaseResource
+    SYS_FIELDS      = %w{ type id space content_type revision created_at
+                          updated_at locale }.freeze
     SYS_LINK_FIELDS = %w(space contentType).freeze
     SYS_DATE_FIELDS = %w(createdAt updatedAt deletedAt).freeze
 
@@ -16,8 +18,14 @@ module Contentful
       @depth = depth
       @sys = hydrate_sys
       @configuration = configuration
+    end
 
-      define_sys_methods!
+    SYS_FIELDS.each do |camel_cased_attr|
+      attr = Support.snakify(camel_cased_attr).to_sym
+
+      define_method(attr) do
+        @sys[attr]
+      end
     end
 
     # @private
@@ -57,14 +65,6 @@ module Contentful
     end
 
     private
-
-    def define_sys_methods!
-      @sys.each do |k, v|
-        define_singleton_method k do
-          v
-        end
-      end
-    end
 
     def hydrate_sys
       result = {}
