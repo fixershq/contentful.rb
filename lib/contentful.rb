@@ -3,3 +3,7 @@
 require 'contentful/version'
 require 'contentful/support'
 require 'contentful/client'
+
+module Contentful
+  autoload :Link, 'link'
+end

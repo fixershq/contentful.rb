@@ -90,7 +90,6 @@ module Contentful
     end
 
     def build_link(item)
-      require_relative 'link'
       ::Contentful::Link.new(item)
     end
   end
