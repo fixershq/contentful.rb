@@ -4,13 +4,18 @@ module Contentful
   # Utility methods used by the contentful gem
   module Support
     class << self
-      # Transforms CamelCase into snake_case (taken from zucker)
+      # Transforms camelCase into snake_case (taken from zucker)
       #
       # @param [String] object camelCaseName
       #
       # @return [String] snake_case_name
       def snakify(camel_cased_word)
+        # NOTE: Catches most items in the "sys"
         return camel_cased_word unless /[A-Z]/.match?(camel_cased_word)
+
+        # NOTE: The only "sys" item that is actually camelCase
+        return "link_type".freeze if camel_cased_word === "linkType".freeze
+
         word = camel_cased_word.to_s.gsub("::".freeze, "/".freeze)
         word.gsub!(/([A-Z]+)([A-Z][a-z])/, '\1_\2'.freeze)
         word.gsub!(/([a-z\d])([A-Z])/, '\1_\2'.freeze)
