@@ -5,5 +5,6 @@ require 'contentful/support'
 require 'contentful/client'
 
 module Contentful
-  autoload :Link, 'link'
+  autoload :Link,            'link'
+  autoload :ResourceBuilder, 'resource_builder'
 end

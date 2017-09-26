@@ -51,8 +51,6 @@ module Contentful
     end
 
     def resolve_include(resource, localized, includes)
-      require_relative 'resource_builder'
-
       ResourceBuilder.new(
         resource,
         @configuration.merge(includes_for_single: includes),
