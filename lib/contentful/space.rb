@@ -9,11 +9,11 @@ module Contentful
   class Space < BaseResource
     attr_reader :name, :locales
 
-    def initialize(item, *)
+    def initialize(json, **rest)
       super
 
-      @name = item.fetch('name', nil)
-      @locales = item.fetch('locales', []).map { |locale| Locale.new(locale) }
+      @name = json.fetch('name', nil)
+      @locales = json.fetch('locales', []).map { |locale| Locale.new(locale) }
     end
 
     # @private

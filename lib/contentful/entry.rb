@@ -18,13 +18,6 @@ module Contentful
       return build_nested_resource(value, localized, includes) if Support.link?(value)
       return coerce_link_array(value, localized, includes) if Support.link_array?(value)
 
-      content_type = ContentTypeCache.cache_get(sys[:space].id, sys[:content_type].id)
-
-      unless content_type.nil?
-        content_type_field = content_type.field_for(field_id)
-        return content_type_field.coerce(value) unless content_type_field.nil?
-      end
-
       super(field_id, value, localized, includes)
     end
 
@@ -42,7 +35,7 @@ module Contentful
     # so we can keep the include chain for that object as well
     # Any included object after the maximum include resolution depth will be just a Link
     def build_nested_resource(value, localized, includes)
-      if @depth < @configuration.fetch(:max_include_resolution_depth, 20)
+      if @depth < 10
         resource = Support.resource_for_link(value, includes)
         return resolve_include(resource, localized, includes) unless resource.nil?
       end
@@ -53,10 +46,12 @@ module Contentful
     def resolve_include(resource, localized, includes)
       ResourceBuilder.new(
         resource,
-        @configuration.merge(includes_for_single: includes),
-        localized,
-        @depth + 1,
-        includes
+        default_locale: default_locale,
+        resource_mapping: resource_mapping,
+        entry_mapping: entry_mapping,
+        includes: includes,
+        localized: localized,
+        depth: @depth + 1
       ).run
     end
 

@@ -5,10 +5,9 @@ module Contentful
   # with domain specific logic. The client later uses the Request's #url and #query methods
   # to execute the HTTP request.
   class Request
-    attr_reader :client, :type, :query, :id, :endpoint
+    attr_reader :type, :query, :id, :endpoint
 
-    def initialize(client, endpoint, query = {}, id = nil)
-      @client = client
+    def initialize(endpoint, query = {}, id = nil)
       @endpoint = endpoint
 
       @query = (normalize_query(query) if query && !query.empty?)
@@ -25,11 +24,6 @@ module Contentful
     # Returns the final URL, relative to a contentful space
     def url
       "#{@endpoint}#{@type == :single ? "/#{id}" : ''}"
-    end
-
-    # Delegates the actual HTTP work to the client
-    def get
-      client.get(self)
     end
 
     # Returns true if endpoint is an absolute url

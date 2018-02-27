@@ -14,34 +14,22 @@ module Contentful
   # Transforms a Contentful::Response into a Contentful::Resource or a Contentful::Error
   # See example/resource_mapping.rb for advanced usage
   class ResourceBuilder
-    # Default Resource Mapping
-    # @see _ README for more information on Resource Mapping
-    DEFAULT_RESOURCE_MAPPING = {
-      'Space' => Space,
-      'ContentType' => ContentType,
-      'Entry' => Entry,
-      'Asset' => Asset,
-      'Array' => Array,
-      'Link' => Link,
-      'DeletedEntry' => DeletedEntry,
-      'DeletedAsset' => DeletedAsset
-    }
-    # Default Entry Mapping
-    # @see _ README for more information on Entry Mapping
-    DEFAULT_ENTRY_MAPPING = {}
+    attr_reader :raw, :default_locale, :endpoint, :depth, :localized,
+      :resource_mapping, :entry_mapping, :resource, :includes
 
-    attr_reader :json, :default_locale, :endpoint, :depth, :localized, :resource_mapping, :entry_mapping, :resource
+    def initialize(json, default_locale:, resource_mapping:, entry_mapping:,
+                   includes:, localized:, depth:, endpoint: nil)
 
-    def initialize(json, configuration = {}, localized = false, depth = 0, endpoint = nil)
-      @json = json
-      @default_locale = configuration.fetch(:default_locale, ::Contentful::Client::DEFAULT_CONFIGURATION[:default_locale])
-      @resource_mapping = default_resource_mapping.merge(configuration.fetch(:resource_mapping, {}))
-      @entry_mapping = default_entry_mapping.merge(configuration.fetch(:entry_mapping, {}))
-      @includes_for_single = configuration.fetch(:includes_for_single, [])
+      @raw = json
+
+      @default_locale = default_locale
+      @resource_mapping = resource_mapping
+      @entry_mapping = entry_mapping
+      @includes = includes
+
       @localized = localized
       @depth = depth
       @endpoint = endpoint
-      @configuration = configuration
     end
 
     # Starts the parsing process.
@@ -57,33 +45,43 @@ module Contentful
     private
 
     def build_array
-      includes = fetch_includes
-      result = json['items'].map do |item|
-        build_item(item, includes)
-      end
+      result = raw['items'].map { |item| build_item(item, fetch_includes) }
+
       array_class = fetch_array_class
-      array_class.new(json.dup.merge('items' => result), default_locale, endpoint)
+      array_class.new(raw.dup.merge('items' => result),
+                      default_locale: default_locale,
+                      resource_mapping: resource_mapping,
+                      entry_mapping: entry_mapping,
+                      includes: includes,
+                      localized: localized,
+                      depth: depth,
+                      endpoint: endpoint)
     end
 
     def build_single
-      includes = @includes_for_single
-      build_item(json, includes)
+      build_item(raw, includes)
     end
 
-    def build_item(item, includes = [])
+    def build_item(item_json, includes = [])
       buildables = %w(Entry Asset ContentType Space DeletedEntry DeletedAsset)
-      item_type = buildables.detect { |b| b.to_s == item['sys']['type'] }
+      item_type = buildables.detect { |b| b.to_s == item_json['sys']['type'] }
       fail UnparsableResource, 'Item type is not known, could not parse' if item_type.nil?
-      item_class = resource_class(item)
+      item_class = resource_class(item_json)
 
-      item_class.new(item, @configuration, localized?, includes, depth)
+      item_class.new(item_json,
+                     default_locale: default_locale,
+                     resource_mapping: resource_mapping,
+                     entry_mapping: entry_mapping,
+                     includes: includes,
+                     localized: localized,
+                     depth: depth)
     end
 
     def fetch_includes
-      includes = json['items'].dup
+      includes = []
       %w(Entry Asset).each do |type|
-        if json.fetch('includes', {}).key?(type)
-          includes.concat(json['includes'].fetch(type, []))
+        if raw.fetch('includes', {}).key?(type)
+          includes.concat(raw['includes'].fetch(type, []))
         end
       end
       includes
@@ -128,21 +126,11 @@ module Contentful
     end
 
     def array?
-      json.fetch('sys', {}).fetch('type', '') == 'Array'
+      raw.fetch('sys', {}).fetch('type', '') == 'Array'
     end
 
     def sync?
-      json.fetch('nextSyncUrl', nil) || json.fetch('nextPageUrl', nil)
-    end
-
-    # The default mapping for #detect_resource_class
-    def default_resource_mapping
-      DEFAULT_RESOURCE_MAPPING.dup
-    end
-
-    # The default entry mapping
-    def default_entry_mapping
-      DEFAULT_ENTRY_MAPPING.dup
+      raw.fetch('nextSyncUrl', nil) || raw.fetch('nextPageUrl', nil)
     end
   end
 end

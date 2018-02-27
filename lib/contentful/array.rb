@@ -15,31 +15,14 @@ module Contentful
 
     attr_reader :total, :limit, :skip, :items, :endpoint
 
-    def initialize(item = nil,
-                   default_locale = Contentful::Client::DEFAULT_CONFIGURATION[:default_locale],
-                   endpoint = '', *)
-      super(item, { default_locale: default_locale })
+    def initialize(json, endpoint:, **rest)
+      super(json, rest)
 
       @endpoint = endpoint
-      @total = item.fetch('total', nil)
-      @limit = item.fetch('limit', nil)
-      @skip = item.fetch('skip', nil)
-      @items = item.fetch('items', [])
-    end
-
-    # @private
-    def marshal_dump
-      super.merge(endpoint: endpoint)
-    end
-
-    # @private
-    def marshal_load(raw_object)
-      super
-      @endpoint = raw_object[:endpoint]
-      @total = raw.fetch('total', nil)
-      @limit = raw.fetch('limit', nil)
-      @skip = raw.fetch('skip', nil)
-      @items = raw.fetch('items', [])
+      @total = json.fetch('total', nil)
+      @limit = json.fetch('limit', nil)
+      @skip = json.fetch('skip', nil)
+      @items = json.fetch('items', [])
     end
 
     # @private

@@ -42,7 +42,21 @@ module Contentful
       application_version: nil,
       integration_name: nil,
       integration_version: nil
-    }
+    }.freeze
+
+    # Default Resource Mapping
+    # @see _ README for more information on Resource Mapping
+    DEFAULT_RESOURCE_MAPPING = {
+      'Space' => Space,
+      'ContentType' => ContentType,
+      'Entry' => Entry,
+      'Asset' => Asset,
+      'Array' => Array,
+      'Link' => Link,
+      'DeletedEntry' => DeletedEntry,
+      'DeletedAsset' => DeletedAsset
+    }.freeze
+
     # Rate Limit Reset Header Key
     RATE_LIMIT_RESET_HEADER_KEY = 'x-contentful-ratelimit-reset'
 
@@ -85,7 +99,9 @@ module Contentful
     # @option given_configuration [String] :integration_name
     # @option given_configuration [String] :integration_version
     def initialize(given_configuration = {})
-      @configuration = default_configuration.merge(given_configuration)
+      @configuration = DEFAULT_CONFIGURATION.merge(given_configuration)
+      @configuration[:resource_mapping] = DEFAULT_RESOURCE_MAPPING.merge(given_configuration[:resource_mapping])
+
       normalize_configuration!
       validate_configuration!
       setup_logger
@@ -107,12 +123,6 @@ module Contentful
         username: configuration[:proxy_username],
         password: configuration[:proxy_password]
       }
-    end
-
-    # Returns the default configuration
-    # @private
-    def default_configuration
-      DEFAULT_CONFIGURATION.dup
     end
 
     # Gets the client's space
@@ -152,7 +162,7 @@ module Contentful
     def entry(id, query = {})
       normalize_select!(query)
       query['sys.id'] = id
-      entries = Request.new(self, '/entries', query).get
+      entries = get(Request.new('/entries', query))
 
       return entries if configuration[:raw_mode]
 
@@ -350,10 +360,13 @@ module Contentful
       logger.debug(response: response) if logger
       configuration[:resource_builder].new(
         response.object,
-        configuration,
-        (response.request.query || {}).fetch(:locale, nil) == '*',
-        0,
-        response.request.endpoint
+        default_locale: configuration[:default_locale],
+        resource_mapping: configuration[:resource_mapping],
+        entry_mapping: configuration[:entry_mapping],
+        includes: configuration[:includes_for_single],
+        localized: (response.request.query || {}).fetch(:locale, nil) == '*',
+        endpoint: response.request.endpoint,
+        depth: 0
       ).run
     end
 

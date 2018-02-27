@@ -10,13 +10,13 @@ module Contentful
   class ContentType < BaseResource
     attr_reader :name, :description, :fields, :display_field
 
-    def initialize(item, *)
+    def initialize(json, **rest)
       super
 
-      @name = item.fetch('name', nil)
-      @description = item.fetch('description', nil)
-      @fields = item.fetch('fields', []).map { |field| Field.new(field) }
-      @display_field = item.fetch('displayField', nil)
+      @name = json.fetch('name', nil)
+      @description = json.fetch('description', nil)
+      @fields = json.fetch('fields', []).map { |field| Field.new(field) }
+      @display_field = json.fetch('displayField', nil)
     end
 
     # Field definition for field

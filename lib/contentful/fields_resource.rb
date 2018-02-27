@@ -6,12 +6,10 @@ require_relative 'base_resource'
 module Contentful
   # Base definition of a Contentful Resource containing Field properties
   class FieldsResource < BaseResource
-    def initialize(item, _configuration, localized = false, includes = [], *)
+    def initialize(json, localized:, includes:, **rest)
       super
 
       @fields = hydrate_fields(localized, includes)
-
-      define_fields_methods!
     end
 
     # Returns all fields of the asset
@@ -42,53 +40,29 @@ module Contentful
       @fields.keys
     end
 
-    # @private
-    def marshal_dump
-      {
-        configuration: @configuration,
-        raw: raw_with_links
-      }
-    end
-
-    # @private
-    def marshal_load(raw_object)
-      super(raw_object)
-      localized = raw_object[:raw].fetch('fields', {}).all? { |_, v| v.is_a?(Hash) }
-      @fields = hydrate_fields(localized, [])
-      define_fields_methods!
-    end
-
-    # @private
-    def raw_with_links
-      links = fields.keys.select { |property| known_link?(property) }
-      processed_raw = raw.clone
-      raw['fields'].each do |k, v|
-        processed_raw['fields'][k] = links.include?(Support.snakify(k).to_sym) ? send(Support.snakify(k)) : v
+    def method_missing(method_name, *args, &block)
+      if fields.has_key? method_name
+        fields[method_name]
+      else
+        super
       end
+    end
 
-      processed_raw
+    def respond_to_missing?(method_name, include_private = false)
+      fields.has_key? method_name
     end
 
     private
 
-    def define_fields_methods!
-      fields.each do |k, v|
-        define_singleton_method k do
-          v
-        end
-      end
-    end
-
     def hydrate_fields(localized, includes)
       return {} unless raw.key?('fields')
 
-      locale = internal_resource_locale
-      result = { locale => {} }
+      locale = internal_resource_locale.dup
+      result = Hash.new { |h,k| h[k] = {} }
 
       if localized
         raw['fields'].each do |name, locales|
           locales.each do |loc, value|
-            result[loc] ||= {}
             result[loc][Support.snakify(name).to_sym] = coerce(
               Support.snakify(name),
               value,
