@@ -21,7 +21,6 @@ module Contentful
     def marshal_load(raw_object)
       super(raw_object)
       create_files!
-      define_asset_methods!
     end
 
     # @private
@@ -32,7 +31,6 @@ module Contentful
     def initialize(*)
       super
       create_files!
-      define_asset_methods!
     end
 
     # Generates a URL for the Contentful Image API
@@ -68,6 +66,15 @@ module Contentful
 
     alias url image_url
 
+
+    def description
+      fields[:description]
+    end
+
+    def file(wanted_locale = nil)
+      fields(wanted_locale)[:file]
+    end
+
     private
 
     def create_files!
@@ -81,16 +88,6 @@ module Contentful
         end
       else
         @fields[internal_resource_locale][:file] = ::Contentful::File.new(file_json)
-      end
-    end
-
-    def define_asset_methods!
-      define_singleton_method :description do
-        fields.fetch(:description, nil)
-      end
-
-      define_singleton_method :file do |wanted_locale = nil|
-        fields(wanted_locale)[:file]
       end
     end
   end

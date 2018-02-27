@@ -10,8 +10,6 @@ module Contentful
       super
 
       @fields = hydrate_fields(localized, includes)
-
-      define_fields_methods!
     end
 
     # Returns all fields of the asset
@@ -55,7 +53,6 @@ module Contentful
       super(raw_object)
       localized = raw_object[:raw].fetch('fields', {}).all? { |_, v| v.is_a?(Hash) }
       @fields = hydrate_fields(localized, [])
-      define_fields_methods!
     end
 
     # @private
@@ -69,15 +66,19 @@ module Contentful
       processed_raw
     end
 
-    private
-
-    def define_fields_methods!
-      fields.each do |k, v|
-        define_singleton_method k do
-          v
-        end
+    def method_missing(method_name, *args, &block)
+      if fields.has_key? method_name
+        fields[method_name]
+      else
+        super
       end
     end
+
+    def respond_to_missing?(method_name, include_private = false)
+      fields.has_key? method_name
+    end
+
+    private
 
     def hydrate_fields(localized, includes)
       return {} unless raw.key?('fields')
