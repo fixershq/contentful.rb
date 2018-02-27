@@ -8,11 +8,6 @@ describe 'DeletedAsset' do
   end
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(deleted_asset.sys).to be_a Hash
-      expect(deleted_asset.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #id' do
       expect(deleted_asset.id).to eq '5c6VY0gWg0gwaIeYkUUiqG'
     end

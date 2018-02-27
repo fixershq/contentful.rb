@@ -5,11 +5,6 @@ describe Contentful::Array do
   let(:array) { vcr('array') { client.content_types } }
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(array.sys).to be_a Hash
-      expect(array.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #type' do
       expect(array.type).to eq 'Array'
     end

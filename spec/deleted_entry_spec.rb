@@ -8,11 +8,6 @@ describe 'DeletedEntry' do
   end
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(deleted_entry.sys).to be_a Hash
-      expect(deleted_entry.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #id' do
       expect(deleted_entry.id).to eq 'CVebBDcQsSsu6yKKIayy'
     end

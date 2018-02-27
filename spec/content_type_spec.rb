@@ -4,11 +4,6 @@ describe Contentful::ContentType do
   let(:content_type) { vcr('content_type') { create_client.content_type 'cat' } }
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(content_type.sys).to be_a Hash
-      expect(content_type.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #id' do
       expect(content_type.id).to eq 'cat'
     end

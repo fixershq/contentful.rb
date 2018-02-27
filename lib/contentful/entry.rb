@@ -18,10 +18,10 @@ module Contentful
       return build_nested_resource(value, localized, includes) if Support.link?(value)
       return coerce_link_array(value, localized, includes) if Support.link_array?(value)
 
-      content_type = ContentTypeCache.cache_get(sys[:space].id, sys[:content_type].id)
+      klass = ContentTypeCache.cache_get(space.id, content_type.id)
 
-      unless content_type.nil?
-        content_type_field = content_type.field_for(field_id)
+      unless klass.nil?
+        content_type_field = klass.field_for(field_id)
         return content_type_field.coerce(value) unless content_type_field.nil?
       end
 
@@ -73,7 +73,7 @@ module Contentful
     protected
 
     def repr_name
-      "#{super}[#{sys[:content_type].id}]"
+      "#{super}[#{content_type.id}]"
     end
   end
 end

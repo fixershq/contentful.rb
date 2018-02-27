@@ -4,11 +4,6 @@ describe Contentful::Space do
   let(:space) { vcr('space') { create_client.space } }
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(space.sys).to be_a Hash
-      expect(space.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #id' do
       expect(space.id).to eq 'cfexampleapi'
     end

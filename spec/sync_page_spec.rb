@@ -5,11 +5,6 @@ describe Contentful::SyncPage do
   let(:page) { vcr('sync_page_2') { create_client.sync.get('https://cdn.contentful.com/spaces/cfexampleapi/sync?sync_token=w5ZGw6JFwqZmVcKsE8Kow4grw45QdybCr8Okw6AYwqbDksO3ehvDpUPCgcKsKXbCiAwPC8K2w4LDvsOkw6nCjhPDpcOQADElWsOoU8KGR3HCtsOAwqd6wp_Dulp8w6LDsF_CtsK7Kk05wrMvwrLClMOgG2_Dn2sGPg') } }
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(page.sys).to be_a Hash
-      expect(page.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #type' do
       expect(page.type).to eq 'Array'
     end

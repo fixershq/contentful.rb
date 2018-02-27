@@ -5,37 +5,47 @@ require_relative 'support'
 module Contentful
   # Base definition of a Contentful Resource containing Sys properties
   class BaseResource
-    SYS_FIELDS      = %w{ type id space content_type revision created_at
-                          updated_at locale }.freeze
+    SYS_FIELDS      = %w{ type id space contentType revision createdAt
+                          updatedAt locale }.freeze
     SYS_LINK_FIELDS = %w(space contentType).freeze
     SYS_DATE_FIELDS = %w(createdAt updatedAt deletedAt).freeze
 
-    attr_reader :raw, :default_locale, :sys
+    attr_reader :raw, :default_locale
 
     def initialize(item, configuration = {}, _localized = false, _includes = [], depth = 0)
       @raw = item
       @default_locale = configuration[:default_locale]
       @depth = depth
-      @sys = hydrate_sys
       @configuration = configuration
     end
 
-    SYS_FIELDS.each do |camel_cased_attr|
-      attr = Support.snakify(camel_cased_attr).to_sym
+    SYS_FIELDS.each do |field_name|
+      attr  = Support.snakify(field_name)
+      inner = %Q{raw.fetch("sys", {})["#{field_name}"]}
+      fetch = case field_name
+              when *SYS_DATE_FIELDS
+                "DateTime.parse(#{fetch})"
+              when *SYS_LINK_FIELDS
+                "build_link(#{inner})"
+              else
+                inner
+              end
 
-      define_method(attr) do
-        @sys[attr]
-      end
+      class_eval <<-CODE, __FILE__, __LINE__ + 1
+        def #{attr}
+          @#{attr} ||= #{fetch}
+        end
+      CODE
     end
 
     # @private
     def inspect
-      "<#{repr_name} id='#{sys[:id]}'>"
+      "<#{repr_name} id='#{id}'>"
     end
 
     # Definition of equality
     def ==(other)
-      self.class == other.class && sys[:id] == other.sys[:id]
+      self.class == other.class && id == other.id
     end
 
     # @private
@@ -51,9 +61,7 @@ module Contentful
       @raw = raw_object[:raw]
       @configuration = raw_object[:configuration]
       @default_locale = @configuration[:default_locale]
-      @sys = hydrate_sys
       @depth = 0
-      define_sys_methods!
     end
 
     # Issues the request that was made to fetch this response again.
@@ -64,21 +72,6 @@ module Contentful
       false
     end
 
-    private
-
-    def hydrate_sys
-      result = {}
-      raw.fetch('sys', {}).each do |k, v|
-        if SYS_LINK_FIELDS.include?(k)
-          v = build_link(v)
-        elsif SYS_DATE_FIELDS.include?(k)
-          v = DateTime.parse(v)
-        end
-        result[Support.snakify(k).to_sym] = v
-      end
-      result
-    end
-
     protected
 
     def repr_name
@@ -86,7 +79,7 @@ module Contentful
     end
 
     def internal_resource_locale
-      sys.fetch(:locale, nil) || default_locale
+      locale || default_locale
     end
 
     def build_link(item)

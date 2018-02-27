@@ -7,11 +7,6 @@ describe Contentful::Link do
   let(:content_type_link) { entry.content_type }
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(link.sys).to be_a Hash
-      expect(link.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #id' do
       expect(link.id).to eq 'cfexampleapi'
     end

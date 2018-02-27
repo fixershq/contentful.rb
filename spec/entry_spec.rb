@@ -4,11 +4,6 @@ describe Contentful::Entry do
   let(:entry) { vcr('entry') { create_client.entry 'nyancat' } }
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(entry.sys).to be_a Hash
-      expect(entry.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #id' do
       expect(entry.id).to eq 'nyancat'
     end
@@ -40,8 +35,8 @@ describe Contentful::Entry do
 
   describe 'Fields' do
     it 'has a #fields getter returning a hash with symbol keys' do
-      expect(entry.sys).to be_a Hash
-      expect(entry.sys.keys.sample).to be_a Symbol
+      expect(entry.fields).to be_a Hash
+      expect(entry.fields.keys.sample).to be_a Symbol
     end
 
     it "contains the entry's fields" do
@@ -217,7 +212,6 @@ describe Contentful::Entry do
           entry = client.entries(select: ['fields'], 'sys.id' => 'nyancat').first
 
           expect(entry.id).to eq 'nyancat'
-          expect(entry.sys).not_to be_empty
         }
       end
 
@@ -226,7 +220,6 @@ describe Contentful::Entry do
           entry = client.entries(select: [], 'sys.id' => 'nyancat').first
 
           expect(entry.id).to eq 'nyancat'
-          expect(entry.sys).not_to be_empty
         }
       end
     end

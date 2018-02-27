@@ -25,7 +25,7 @@ module Contentful
 
     # @private
     def inspect
-      "<#{repr_name} id='#{sys[:id]}' url='#{url}'>"
+      "<#{repr_name} id='#{id}' url='#{url}'>"
     end
 
     def initialize(*)

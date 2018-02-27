@@ -4,11 +4,6 @@ describe Contentful::Asset do
   let(:asset) { vcr('asset') { create_client.asset('nyancat') } }
 
   describe 'SystemProperties' do
-    it 'has a #sys getter returning a hash with symbol keys' do
-      expect(asset.sys).to be_a Hash
-      expect(asset.sys.keys.sample).to be_a Symbol
-    end
-
     it 'has #id' do
       expect(asset.id).to eq 'nyancat'
     end
@@ -88,7 +83,6 @@ describe Contentful::Asset do
         vcr('asset/select_only_sys') {
           asset = client.assets(select: ['sys']).first
           expect(asset.fields).to be_empty
-          expect(asset.sys).not_to be_empty
         }
       end
 
@@ -106,7 +100,6 @@ describe Contentful::Asset do
           asset = client.assets(select: ['fields'], 'sys.id' => 'nyancat').first
 
           expect(asset.id).to eq 'nyancat'
-          expect(asset.sys).not_to be_empty
         }
       end
 
@@ -115,7 +108,6 @@ describe Contentful::Asset do
           asset = client.assets(select: [], 'sys.id' => 'nyancat').first
 
           expect(asset.id).to eq 'nyancat'
-          expect(asset.sys).not_to be_empty
         }
       end
     end
