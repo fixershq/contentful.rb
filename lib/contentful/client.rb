@@ -51,11 +51,13 @@ module Contentful
     # Wraps the actual HTTP request via proxy
     # @private
     def self.get_http(url, query, headers = {}, proxy = {})
+      request = HTTP[headers].use(:auto_inflate)
+
       if proxy[:host]
-        HTTP[headers].via(proxy[:host], proxy[:port], proxy[:username], proxy[:password]).get(url, params: query)
-      else
-        HTTP[headers].get(url, params: query)
+        request.via(proxy[:host], proxy[:port], proxy[:username], proxy[:password])
       end
+
+      request.get(url, params: query, encoding: Encoding::UTF_8)
     end
 
     # @see _ https://github.com/contentful/contentful.rb#client-configuration-options

@@ -91,18 +91,7 @@ module Contentful
     end
 
     def load_json
-      MultiJson.load(unzip_response(raw))
-    end
-
-    def unzip_response(response)
-      parsed_response = response.to_s
-      if response.headers['Content-Encoding'].eql?('gzip')
-        sio = StringIO.new(parsed_response)
-        gz = Zlib::GzipReader.new(sio)
-        gz.read
-      else
-        parsed_response
-      end
+      MultiJson.load(raw.to_s)
     end
   end
 end
